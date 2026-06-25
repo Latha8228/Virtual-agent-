@@ -1,0 +1,180 @@
+import streamlit as st
+from datetime import datetime, timedelta
+
+st.set_page_config(
+    page_title="Virtual Agent–Driven SLA Breach Awareness & Justification System",
+    page_icon="🤖",
+    layout="wide"
+)
+
+st.title("🤖 Virtual Agent–Driven SLA Breach Awareness & Justification System")
+
+# Sample Ticket Database
+tickets = {
+    "INC001": {
+        "created_time": datetime.now() - timedelta(hours=6),
+        "sla_hours": 8,
+        "status": "In Progress",
+        "assigned_group": "Network Team",
+        "pending_reason": "Awaiting engineer response"
+    },
+    "INC002": {
+        "created_time": datetime.now() - timedelta(hours=9),
+        "sla_hours": 8,
+        "status": "Open",
+        "assigned_group": "Application Team",
+        "pending_reason": "No resource assigned"
+    },
+    "INC003": {
+        "created_time": datetime.now() - timedelta(hours=2),
+        "sla_hours": 8,
+        "status": "In Progress",
+        "assigned_group": "Database Team",
+        "pending_reason": "Investigation ongoing"
+    }
+}
+
+st.sidebar.header("Ticket Lookup")
+ticket_id = st.sidebar.selectbox(
+    "Select Ticket",
+    list(tickets.keys())
+)
+
+ticket = tickets[ticket_id]
+
+elapsed = (datetime.now() - ticket["created_time"]).total_seconds() / 3600
+remaining = ticket["sla_hours"] - elapsed
+
+st.subheader(f"Ticket: {ticket_id}")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.write("### Ticket Details")
+    st.write(f"**Status:** {ticket['status']}")
+    st.write(f"**Assigned Group:** {ticket['assigned_group']}")
+    st.write(f"**Created Time:** {ticket['created_time']}")
+
+with col2:
+    st.write("### SLA Status")
+    st.write(f"**SLA Target:** {ticket['sla_hours']} Hours")
+    st.write(f"**Elapsed Time:** {elapsed:.2f} Hours")
+    st.write(f"**Remaining Time:** {remaining:.2f} Hours")
+
+# SLA Prediction Logic
+st.subheader("🚨 SLA Prediction")
+
+if remaining <= 0:
+    st.error("SLA BREACH DETECTED")
+    breach_status = "BREACHED"
+elif remaining <= 2:
+    st.warning("HIGH RISK OF SLA BREACH")
+    breach_status = "AT RISK"
+else:
+    st.success("SLA ON TRACK")
+    breach_status = "SAFE"
+
+# Justification Engine
+st.subheader("📋 Breach Justification")
+
+if breach_status == "BREACHED":
+    justification = f"""
+    SLA Breach Reason:
+    - Ticket exceeded SLA target time.
+    - Current Status: {ticket['status']}
+    - Pending Reason: {ticket['pending_reason']}
+    - No timely resolution before deadline.
+    """
+elif breach_status == "AT RISK":
+    justification = f"""
+    Potential SLA Breach Warning:
+    - Less than 2 hours remaining.
+    - Current Status: {ticket['status']}
+    - Pending Reason: {ticket['pending_reason']}
+    - Immediate action required.
+    """
+else:
+    justification = """
+    SLA is currently healthy.
+    Ticket progress is within acceptable limits.
+    """
+
+st.info(justification)
+
+# Timeline Section
+st.subheader("📅 Ticket Timeline")
+
+timeline = [
+    ("Ticket Created", ticket["created_time"]),
+    ("Assigned to Team", ticket["created_time"] + timedelta(minutes=15)),
+    ("Work Started", ticket["created_time"] + timedelta(hours=1)),
+    ("Current Status", datetime.now())
+]
+
+for event, time in timeline:
+    st.write(f"✅ {event} : {time.strftime('%d-%m-%Y %H:%M:%S')}")
+
+# Virtual Agent Chatbox
+st.subheader("💬 Virtual Agent")
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
+
+user_input = st.chat_input(
+    "Ask about SLA status, breach reason, timeline..."
+)
+
+if user_input:
+    st.session_state.messages.append(
+        {"role": "user", "content": user_input}
+    )
+
+    with st.chat_message("user"):
+        st.write(user_input)
+
+    response = ""
+
+    query = user_input.lower()
+
+    if "sla" in query:
+        response = f"""
+        Ticket {ticket_id} SLA Status:
+        Remaining Time = {remaining:.2f} hours.
+        Risk Level = {breach_status}
+        """
+
+    elif "why" in query or "breach" in query:
+        response = justification
+
+    elif "timeline" in query:
+        response = "\n".join(
+            [f"{event} - {time.strftime('%d-%m-%Y %H:%M:%S')}"
+             for event, time in timeline]
+        )
+
+    elif "status" in query:
+        response = f"""
+        Current Status: {ticket['status']}
+        Assigned Team: {ticket['assigned_group']}
+        """
+
+    else:
+        response = """
+        I can help with:
+        • SLA Status
+        • Breach Prediction
+        • Breach Justification
+        • Ticket Timeline
+        • Current Ticket Status
+        """
+
+    st.session_state.messages.append(
+        {"role": "assistant", "content": response}
+    )
+
+    with st.chat_message("assistant"):
+        st.write(response)
