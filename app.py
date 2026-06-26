@@ -193,15 +193,18 @@ def justification(ticket_no):
 
             "ticket": row["ticket_no"],
             "reason": row["reason"],
-            "assigned_team":
-            row["assigned_team"]
+            "assigned_team": row["assigned_team"]
 
         })
 
     return jsonify({
-        "message":"Ticket Not Found"
+        "message": "Ticket Not Found"
     })
-    @app.route("/api/chat", methods=["POST"])
+
+
+# 👇 IKKADA NUNCHI KOTTHA API START
+
+@app.route("/api/chat", methods=["POST"])
 def chat():
 
     data = request.get_json()
@@ -225,15 +228,8 @@ def chat():
     prompt = f"""
 You are an AI Virtual Agent for an SLA Breach Awareness System.
 
-Use ONLY the ticket information below when answering ticket-related questions.
-
 Ticket Data:
 {ticket_data}
-
-Rules:
-- Answer only questions related to SLA, tickets, breach prediction, justification, assigned team, or ticket status.
-- If the user asks an unrelated question, reply:
-  'I can only answer questions related to the SLA Breach Awareness System.'
 
 User Question:
 {user_question}
@@ -243,8 +239,7 @@ User Question:
 
     return jsonify({
         "reply": response.text
-    })
-# Startup
+    })# Startup
 create_table()
 insert_sample_data()
 
