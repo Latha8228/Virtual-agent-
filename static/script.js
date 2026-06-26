@@ -167,97 +167,58 @@ function createChart(stats){
 
 // Chatbot
 
-function sendMessage(){
+  async function sendMessage() {
 
-    let input =
-    document.getElementById(
-        "message"
-    );
+    let input = document.getElementById("message");
+    let msg = input.value.trim();
 
-    let msg =
-    input.value;
+    if (msg === "") return;
 
-    if(msg === "")
-    return;
+    let chat = document.getElementById("chatbox");
 
-    let chat =
-    document.getElementById(
-        "chatbox"
-    );
-
-    chat.innerHTML +=
-
-    `<div class="user">
-        ${msg}
-    </div>`;
-
-    let reply = "";
-
-    let query =
-    msg.toLowerCase();
-
-    if(query.includes("sla")){
-
-        reply =
-        "I continuously monitor tickets and calculate remaining SLA time.";
-
-    }
-
-    else if(query.includes("risk")){
-
-        reply =
-        "Risk means ticket is close to breaching SLA.";
-
-    }
-
-    else if(query.includes("breach")){
-
-        reply =
-        "Breach occurs when remaining SLA time reaches 0 before resolution.";
-
-    }
-
-    else if(query.includes("why")){
-
-        reply =
-        "Possible reasons include delayed engineer response, approvals pending, resource shortage, or unresolved incidents.";
-
-    }
-
-    else if(query.includes("timeline")){
-
-        reply =
-        "Timeline: Created → Assigned → Investigation → Monitoring → Resolution";
-
-    }
-
-    else if(query.includes("ticket")){
-
-        reply =
-        "Click any ticket row to view justification details.";
-
-    }
-
-    else{
-
-        reply =
-        "I can help with SLA Status, Risk Prediction, Breach Justification, Analytics and Timeline.";
-
-    }
-
-    chat.innerHTML +=
-
-    `<div class="bot">
-        ${reply}
-    </div>`;
-
-    chat.scrollTop =
-    chat.scrollHeight;
+    // User Message
+    chat.innerHTML += `
+        <div class="user">${msg}</div>
+    `;
 
     input.value = "";
 
-}
+    try {
 
+        const response = await fetch("/api/chat", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: msg
+            })
+
+        });
+
+        const data = await response.json();
+
+        // Gemini Reply
+        chat.innerHTML += `
+            <div class="bot">${data.reply}</div>
+        `;
+
+        chat.scrollTop = chat.scrollHeight;
+
+    } catch (error) {
+
+        chat.innerHTML += `
+            <div class="bot">
+                Error connecting to Gemini AI.
+            </div>
+        `;
+
+    }
+
+}
 
 // Browser Notification
 
