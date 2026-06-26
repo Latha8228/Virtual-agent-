@@ -1,7 +1,15 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
+import google.generativeai as genai
+from dotenv import load_dotenv
+import os
 import sqlite3
 
 app = Flask(__name__)
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+model = genai.GenerativeModel("gemini-2.5-flash")
 # Database Connection
 def get_db_connection():
     conn = sqlite3.connect("database.db")
@@ -192,6 +200,49 @@ def justification(ticket_no):
 
     return jsonify({
         "message":"Ticket Not Found"
+    })
+    @app.route("/api/chat", methods=["POST"])
+def chat():
+
+    data = request.get_json()
+    user_question = data.get("message", "")
+
+    conn = get_db_connection()
+    rows = conn.execute("SELECT * FROM tickets").fetchall()
+    conn.close()
+
+    ticket_data = ""
+
+    for row in rows:
+        ticket_data += (
+            f"Ticket: {row['ticket_no']}, "
+            f"Status: {row['status']}, "
+            f"Remaining Time: {row['remaining_time']} hours, "
+            f"Assigned Team: {row['assigned_team']}, "
+            f"Reason: {row['reason']}\n"
+        )
+
+    prompt = f"""
+You are an AI Virtual Agent for an SLA Breach Awareness System.
+
+Use ONLY the ticket information below when answering ticket-related questions.
+
+Ticket Data:
+{ticket_data}
+
+Rules:
+- Answer only questions related to SLA, tickets, breach prediction, justification, assigned team, or ticket status.
+- If the user asks an unrelated question, reply:
+  'I can only answer questions related to the SLA Breach Awareness System.'
+
+User Question:
+{user_question}
+"""
+
+    response = model.generate_content(prompt)
+
+    return jsonify({
+        "reply": response.text
     })
 # Startup
 create_table()
