@@ -3,6 +3,9 @@ import sqlite3
 
 app = Flask(__name__)
 
+
+create_table()
+insert_sample_data()
 # Database Connection
 def get_db_connection():
     conn = sqlite3.connect("database.db")
@@ -198,10 +201,4 @@ def justification(ticket_no):
 # Startup
 if __name__ == "__main__":
 
-    create_table()
-
-    insert_sample_data()
-
-    app.run(
-        debug=True
-    )
+    app.run(debug=True)
