@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+Virtual Agent–Driven SLA Breach Awareness & Justification System
+</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>
+🤖 Virtual Agent–Driven SLA Breach Awareness & Justification System
+</h1>
+
+<p>
+Predict SLA Breaches Before They Happen
+</p>
+
+</header>
+
+<div class="container">
+
+    <!-- Dashboard Stats -->
+
+    <div class="card stat-card">
+
+        <h2>Safe Tickets</h2>
+
+        <h1 id="safeCount">0</h1>
+
+    </div>
+
+    <div class="card stat-card">
+
+        <h2>Risk Tickets</h2>
+
+        <h1 id="riskCount">0</h1>
+
+    </div>
+
+    <div class="card stat-card">
+
+        <h2>Breached Tickets</h2>
+
+        <h1 id="breachCount">0</h1>
+
+    </div>
+
+</div>
+
+<!-- Tickets -->
+
+<div class="card">
+
+<h2>🎫 Active Tickets</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Ticket</th>
+<th>Status</th>
+<th>Remaining SLA</th>
+<th>Prediction</th>
+
+</tr>
+
+</thead>
+
+<tbody id="ticketTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+<!-- Justification -->
+
+<div class="card">
+
+<h2>📋 Breach Justification</h2>
+
+<div id="justification">
+
+Click a Ticket To View Details
+
+</div>
+
+</div>
+
+<!-- Timeline -->
+
+<div class="card">
+
+<h2>📅 Ticket Timeline</h2>
+
+<ul class="timeline">
+
+<li>Ticket Created</li>
+
+<li>Assigned To Team</li>
+
+<li>Investigation Started</li>
+
+<li>SLA Monitoring Active</li>
+
+<li>Current Status Updated</li>
+
+</ul>
+
+</div>
+
+<!-- Chart -->
+
+<div class="card">
+
+<h2>📊 SLA Analytics</h2>
+
+<canvas id="slaChart"></canvas>
+
+</div>
+
+<!-- Chatbot -->
+
+<div class="card">
+
+<h2>💬 Virtual Agent</h2>
+
+<div id="chatbox">
+
+<div class="bot">
+
+Hello! Ask me about SLA, Risk,
+Breach, Timeline or Justification.
+
+</div>
+
+</div>
+
+<div class="chat-input">
+
+<input
+type="text"
+id="message"
+placeholder="Ask Something..."
+>
+
+<button onclick="sendMessage()">
+
+Send
+
+</button>
+
+</div>
+
+</div>
+
+<script
+src="{{ url_for('static', filename='script.js') }}">
+</script>
+
+</body>
+</html>
